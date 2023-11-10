@@ -37,8 +37,10 @@ schema = StructType([
 spark.sql("CREATE DATABASE IF NOT EXISTS throne")
 
 sample_dataframe = spark.createDataFrame(data=data, schema=schema)
-# sample_dataframe.write.mode(saveMode="overwrite").format("delta").save("data/delta-table")
+# Internal Table
 sample_dataframe.write.mode(saveMode="overwrite").format("delta").saveAsTable("throne.family")
+# External Table
+sample_dataframe.write.mode(saveMode="overwrite").format("delta").save("throne.family_1")
 #
 # # Read Data
 # print("Reading delta file ... !")
