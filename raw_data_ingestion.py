@@ -2,13 +2,12 @@ import pyspark
 from delta import *
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
-
-hdfs_path = "hdfs://localhost:9000/data/delta-table"
+from datetime import datetime
 
 # Create a spark session with Delta
-builder = pyspark.sql.SparkSession.builder.appName("DeltaLakeTutorial_1") \
+builder = pyspark.sql.SparkSession.builder.appName("datasource-ingest-into-datalake-for-first") \
     .config("hive.metastore.uris", "thrift://localhost:9083") \
-    .config("spark.sql.warehouse.dir", "hdfs://localhost:9000/user/spark/warehouse") \
+    .config("spark.sql.warehouse.dir", "hdfs://localhost:9000/spark/warehouse") \
     .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
 
@@ -19,6 +18,11 @@ spark = configure_spark_with_delta_pip(builder) \
 spark.sparkContext.setLogLevel("ERROR")
 
 print("Starting Delta table creation")
+hdfs_path = "hdfs://localhost:9000/raw-data"
+today = datetime.today().strftime('%Y_%m_%d')
+database = 'family'
+# dest_path = f"{hdfs_path}/{database}/{today}"
+dest_path = f"{hdfs_path}/{database}/2023_11_14"
 
 data = [
     ("Robert", "Baratheon", "Baratheon", "Storms End", 48),
@@ -34,13 +38,31 @@ schema = StructType([
     StructField("age", IntegerType(), True)
 ])
 
-spark.sql("CREATE DATABASE IF NOT EXISTS throne")
+# Bronze
+# PATH : /raw_data/{TABLE_NAME}/{YYYY_MM_DD}/*.parquet
+df = spark.createDataFrame(data=data, schema=schema)
+df.write.mode(saveMode="overwrite") \
+    .format("delta") \
+    .save(dest_path)
 
-sample_dataframe = spark.createDataFrame(data=data, schema=schema)
-# Internal Table
-sample_dataframe.write.mode(saveMode="overwrite").format("delta").saveAsTable("throne.family")
-# External Table
-sample_dataframe.write.mode(saveMode="overwrite").format("delta").save("throne.family_1")
+# spark.sql("CREATE DATABASE IF NOT EXISTS throne")
+# spark.sql("USE THRONE")
+# df.write.format('delta').mode(saveMode='overwrite').option('path', dest_path).saveAsTable('throne.family')
+
+# spark.sql("CREATE DATABASE IF NOT EXISTS throne")
+# spark.sql("USE THRONE")
+# spark.sql(
+#     """
+#     CREATE TABLE family (firstname STRING, lastname STRING, house STRING, location STRING, age INTEGER)
+#     USING delta TBLPROPERTIES (delta.enableChangeDataFeed = true)
+#     """
+# )
+#
+# sample_dataframe = spark.createDataFrame(data=data, schema=schema)
+# # Internal Table
+# sample_dataframe.write.mode(saveMode="append").format("delta").saveAsTable("throne.family")
+# # External Table
+# sample_dataframe.write.mode(saveMode="overwrite").format("delta").save(hdfs_path+"/family_1")
 #
 # # Read Data
 # print("Reading delta file ... !")
