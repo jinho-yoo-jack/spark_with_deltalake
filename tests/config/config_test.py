@@ -1,6 +1,6 @@
 import unittest
 
-import delta.config.config_manager as c
+import lakehouse.config.config_manager as c
 
 
 class TestConfigManager(unittest.TestCase):

@@ -1,5 +1,5 @@
 import pyspark
-from delta import *
+from lakehouse import *
 from pyspark import SparkConf
 from pyspark.sql.catalog import Table
 from pyspark.sql.types import *
@@ -20,8 +20,8 @@ spark_config = (
 builder = pyspark.sql.SparkSession.builder.appName("DeltaLakeTutorial_3") \
     .config("hive.metastore.uris", "thrift://localhost:9083") \
     .config("spark.sql.warehouse.dir", "hdfs://localhost:9000/user/spark/warehouse") \
-    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
-    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    .config("spark.sql.extensions", "io.lakehouse.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.lakehouse.catalog.DeltaCatalog")
 
 # Create spark context
 spark = configure_spark_with_delta_pip(builder) \
@@ -36,7 +36,7 @@ spark.sql("show tables").show()
 spark.sql("select * from family").show(100)
 spark.sql("DESCRIBE TABLE EXTENDED family").show(100)
 # (
-#     spark.read.format("delta")
+#     spark.read.format("lakehouse")
 #     .option("readChangeFeed", "true")
 #     .option("startingVersion", 0)
 #     .table("family")

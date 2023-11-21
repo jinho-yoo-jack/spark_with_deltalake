@@ -1,15 +1,15 @@
 import pyspark
-from delta import *
+from lakehouse import *
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
 from datetime import datetime
 
 # Create a spark session with Delta
-builder = pyspark.sql.SparkSession.builder.appName("make-delta-table-using-rawdata") \
+builder = pyspark.sql.SparkSession.builder.appName("appended-datasource-ingest-into-datalake") \
     .config("hive.metastore.uris", "thrift://localhost:9083") \
     .config("spark.sql.warehouse.dir", "hdfs://localhost:9000/spark/warehouse") \
-    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
-    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    .config("spark.sql.extensions", "io.lakehouse.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.lakehouse.catalog.DeltaCatalog")
 
 # Create spark context
 spark = configure_spark_with_delta_pip(builder) \
@@ -17,35 +17,39 @@ spark = configure_spark_with_delta_pip(builder) \
     .getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")
 
+print("Starting Delta table creation")
+
+newlyArrivedData = [
+    ("Catelyn", "Stark", "Stark", "Stark House", 58),
+    ("Jon", "Snow", "Stark", "Winterfell", 30)
+]
+
+schema = StructType([
+    StructField("firstname", StringType(), True),
+    StructField("lastname", StringType(), True),
+    StructField("house", StringType(), True),
+    StructField("location", StringType(), True),
+    StructField("age", IntegerType(), True)
+])
+
+print("Starting Delta table creation")
 hdfs_path = "hdfs://localhost:9000/raw-data"
+today = datetime.today().strftime('%Y_%m_%d')
 database = 'family'
-dest_path = f"{hdfs_path}/{database}/2023_11_14"
+# dest_path = f"{hdfs_path}/{database}/{today}"
+dest_path = f"{hdfs_path}/{database}/2023_11_15"
 
-df = spark.read.format("delta").load("hdfs://localhost:9000/raw-data/family/2023_11_14")
-spark.sql("CREATE DATABASE IF NOT EXISTS throne")
-spark.sql("USE THRONE")
-spark.sql("DROP TABLE IF EXISTS family")
-df.write.format('delta').mode(saveMode='overwrite').option('path', dest_path).saveAsTable('throne.family')
-#
-# spark.sql("DESCRIBE DETAIL family")
+df = spark.createDataFrame(data=newlyArrivedData, schema=schema)
+df.write.mode(saveMode="overwrite") \
+    .format("lakehouse") \
+    .save(dest_path)
 
-# spark.sql(
-#     """
-#     CREATE TABLE family (firstname STRING, lastname STRING, house STRING, location STRING, age INTEGER)
-#     USING delta TBLPROPERTIES (delta.enableChangeDataFeed = true)
-#     """
-# )
-#
-# sample_dataframe = spark.createDataFrame(data=data, schema=schema)
-# # Internal Table
-# sample_dataframe.write.mode(saveMode="append").format("delta").saveAsTable("throne.family")
-# # External Table
-# sample_dataframe.write.mode(saveMode="overwrite").format("delta").save(hdfs_path+"/family_1")
+# sample_dataframe.write.mode(saveMode="overwrite").format("lakehouse").save(hdfs_path+"/family_1")
 #
 # # Read Data
-# print("Reading delta file ... !")
+# print("Reading lakehouse file ... !")
 #
-# got_df = spark.read.format("delta").load("hdfs://localhost:9000/data/delta-table")
+# got_df = spark.read.format("lakehouse").load("hdfs://localhost:9000/data/lakehouse-table")
 # got_df.show()
 #
 #
@@ -57,15 +61,15 @@ df.write.format('delta').mode(saveMode='overwrite').option('path', dest_path).sa
 #     ("Jamie", "Lannister", "Lannister", "Casterly Rock", 29),
 # ]
 # sample_dataframe = spark.createDataFrame(data=data, schema=schema)
-# # sample_dataframe.write.mode(saveMode="overwrite").format("delta").save("data/delta-table")
-# sample_dataframe.write.mode(saveMode="overwrite").format("delta").save("hdfs://localhost:9000/data/delta-table")
+# # sample_dataframe.write.mode(saveMode="overwrite").format("lakehouse").save("data/lakehouse-table")
+# sample_dataframe.write.mode(saveMode="overwrite").format("lakehouse").save("hdfs://localhost:9000/data/lakehouse-table")
 #
 #
-# got_df = spark.read.format("delta").load("hdfs://localhost:9000/data/delta-table")
+# got_df = spark.read.format("lakehouse").load("hdfs://localhost:9000/data/lakehouse-table")
 # got_df.show()
 #
 # # Update data in Delta
-# print("Update delta table ... !")
+# print("Update lakehouse table ... !")
 #
 # deltaTable = DeltaTable.forPath(spark, hdfs_path)
 # deltaTable.toDF().show()
@@ -87,7 +91,7 @@ df.write.format('delta').mode(saveMode='overwrite').option('path', dest_path).sa
 #
 # # Upsert Data
 # print("Upserting Data...!")
-# # delta table path
+# # lakehouse table path
 # deltaTable = DeltaTable.forPath(spark, path=hdfs_path)
 # deltaTable.toDF().show()
 #
@@ -124,11 +128,11 @@ df.write.format('delta').mode(saveMode='overwrite').option('path', dest_path).sa
 # # Delete Data
 # print("Deleting data...!")
 #
-# # delta table path
+# # lakehouse table path
 # deltaTable = DeltaTable.forPath(spark, path=hdfs_path)
 # deltaTable.toDF().show()
 #
 # deltaTable.delete(condition=expr("firstname == 'Gendry'"))
 #
 # deltaTable.toDF().show(1000)
-# deltaTable.toDF().write.format("delta").saveAsTable("delta_as_table")
+# deltaTable.toDF().write.format("lakehouse").saveAsTable("delta_as_table")

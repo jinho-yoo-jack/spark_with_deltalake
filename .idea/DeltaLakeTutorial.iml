@@ -3,7 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/delta" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lakehouse" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -12,10 +12,10 @@
   <component name="PyNamespacePackagesService">
     <option name="namespacePackageFolders">
       <list>
-        <option value="$MODULE_DIR$/delta/common" />
-        <option value="$MODULE_DIR$/delta/config" />
-        <option value="$MODULE_DIR$/delta/schema" />
-        <option value="$MODULE_DIR$/delta/spark" />
+        <option value="$MODULE_DIR$/lakehouse/common" />
+        <option value="$MODULE_DIR$/lakehouse/config" />
+        <option value="$MODULE_DIR$/lakehouse/schema" />
+        <option value="$MODULE_DIR$/lakehouse/spark" />
         <option value="$MODULE_DIR$/tests/config" />
       </list>
     </option>
