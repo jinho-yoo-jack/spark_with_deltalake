@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 
+
 class SparkSessionManager:
     def __init__(self):
         self.spark: SparkSession = None
@@ -12,3 +13,6 @@ class SparkSessionManager:
     def stop_spark_session(self):
         if self.spark is not None:
             self.spark.stop()
+           
+    def getSparkConfig(self):
+        pass

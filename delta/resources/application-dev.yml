@@ -1,0 +1,12 @@
+hadoop:
+  dfs:
+    url: hdfs://localhost:9000
+
+spark:
+  sql:
+    warehouse:
+      dir: hdfs://localhost:9000/spark/warehouse
+
+hive:
+  metastore:
+    uri: thrift://localhost:9083
