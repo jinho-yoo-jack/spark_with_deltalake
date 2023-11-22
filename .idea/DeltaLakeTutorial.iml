@@ -14,7 +14,7 @@
       <list>
         <option value="$MODULE_DIR$/lakehouse/common" />
         <option value="$MODULE_DIR$/lakehouse/config" />
-        <option value="$MODULE_DIR$/lakehouse/schema" />
+        <option value="$MODULE_DIR$/lakehouse/source_data" />
         <option value="$MODULE_DIR$/lakehouse/spark" />
         <option value="$MODULE_DIR$/tests/config" />
       </list>

@@ -43,7 +43,7 @@ targetTable.alias("target").merge(
 #     """
 # )
 #
-# sample_dataframe = spark.createDataFrame(data=data, schema=schema)
+# sample_dataframe = spark.createDataFrame(data=data, source_data=source_data)
 # # Internal Table
 # sample_dataframe.write.mode(saveMode="append").format("lakehouse").saveAsTable("throne.family")
 # # External Table
@@ -63,7 +63,7 @@ targetTable.alias("target").merge(
 #     ("Eddard", "Stark", "Stark", "Winterfell", 46),
 #     ("Jamie", "Lannister", "Lannister", "Casterly Rock", 29),
 # ]
-# sample_dataframe = spark.createDataFrame(data=data, schema=schema)
+# sample_dataframe = spark.createDataFrame(data=data, source_data=source_data)
 # # sample_dataframe.write.mode(saveMode="overwrite").format("lakehouse").save("data/lakehouse-table")
 # sample_dataframe.write.mode(saveMode="overwrite").format("lakehouse").save("hdfs://localhost:9000/data/lakehouse-table")
 #
@@ -103,7 +103,7 @@ targetTable.alias("target").merge(
 #         ("Jon", "Snow", "Stark", "Winterfell", 21),
 #         ("Jamie", "Lannister", "Lannister", "Casterly Rock", 36)
 #         ]
-# schema = StructType([
+# source_data = StructType([
 #     StructField("firstname", StringType(), True),
 #     StructField("lastname", StringType(), True),
 #     StructField("house", StringType(), True),
@@ -111,7 +111,7 @@ targetTable.alias("target").merge(
 #     StructField("age", IntegerType(), True)
 # ])
 #
-# newData = spark.createDataFrame(data=data, schema=schema)
+# newData = spark.createDataFrame(data=data, source_data=source_data)
 #
 # deltaTable.alias("oldData") \
 #     .merge(

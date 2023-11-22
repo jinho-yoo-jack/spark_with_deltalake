@@ -1,0 +1,7 @@
+{
+  "url": "localhost",
+  "port": 9000,
+  "root_path": "raw-data",
+  "user": "None",
+  "password": "None"
+}
